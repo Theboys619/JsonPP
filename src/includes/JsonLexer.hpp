@@ -241,7 +241,10 @@ class JSONLexer {
           advance();
         }
 
-        JSONToken tok = JSONToken(value, true);
+        if (value == "true" || value == "false") type = "Boolean";
+
+        JSONToken tok = type == "Identifier" ? JSONToken(value, true)
+          : JSONToken(type, value);
         tok.index = tokindex;
         tok.line = line;
 

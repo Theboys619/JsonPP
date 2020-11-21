@@ -4,6 +4,7 @@
 int main(int argc, char** argv) {
   
   JSONObject x = JSON::readFromFile("./tests/test.json");
+  x["allow"] = false;
 
   while (true) {
     std::string input;

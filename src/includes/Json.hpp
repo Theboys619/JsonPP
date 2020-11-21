@@ -58,6 +58,10 @@ class JSONObject {
       obj.setValue(key, newvalue);
       return obj.mapentries[key];
     }
+    JSONObject operator= (bool newvalue) {
+      obj.setValue(key, newvalue);
+      return obj.mapentries[key];
+    }
     JSONObject operator= (int newvalue) {
       obj.setValue(key, newvalue);
       return obj.mapentries[key];
@@ -81,6 +85,9 @@ class JSONObject {
     double getDouble() {
       return obj.mapentries[key].toDouble();
     }
+    bool getBoolean() {
+      return obj.mapentries[key].toBoolean();
+    }
 
     JSONObject read() {
       return obj.mapentries[key];
@@ -91,6 +98,12 @@ class JSONObject {
   JSONObject(std::string value) {
     token = JSONToken(value);
     jsonexp = new Expression(ExprTypes::String, token);
+    type = Types::Value;
+    initValue(token);
+  }
+  JSONObject(bool value) {
+    token = JSONToken("Boolean", std::string(value ? "true" : "false"));
+    jsonexp = new Expression(ExprTypes::Boolean, token);
     type = Types::Value;
     initValue(token);
   }
@@ -127,6 +140,10 @@ class JSONObject {
   }
 
   std::string toString() {
+    std::cout << token.getString();
+    if (token.type == "Boolean") return token.getString();
+    if (token.type == "Integer") return token.getString();
+    if (token.type == "Double" ) return token.getString();
     return *(std::string*)value;
   }
   int toInt() {
@@ -134,6 +151,9 @@ class JSONObject {
   }
   double toDouble() {
     return *(double*)value;
+  }
+  bool toBoolean() {
+    return *(bool*)value;
   }
 
   void setValue(std::string key, std::string val) {
@@ -145,6 +165,9 @@ class JSONObject {
   void setValue(std::string key, double val) {
     mapentries[key] = JSONObject(val);
   }
+  void setValue(std::string key, bool val) {
+    mapentries[key] = JSONObject(val);
+  }
 
   void initValue(JSONToken tok) {
     if (tok.type == "String") {
@@ -153,6 +176,8 @@ class JSONObject {
       value = new int(std::stoi(tok.getString()));
     } else if (tok.type == "Double") {
       value = new double(std::stod(tok.getString()));
+    } else if (tok.type == "Boolean") {
+      value = new bool(tok.getString() == "true" ? true : false);
     }
 
     return;

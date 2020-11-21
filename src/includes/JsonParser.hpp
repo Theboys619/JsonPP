@@ -17,6 +17,7 @@ enum class ExprTypes {
   Integer,
   Double,
   String,
+  Boolean,
   Key,
   Entry,
   Object,
@@ -178,6 +179,14 @@ class JSONParser {
     }
 
     if (isType("Double", curTok)) {
+      oldTok->type = ExprTypes::Double;
+      advance();
+
+      return oldTok;
+    }
+
+    if (isType("Boolean", curTok)) {
+      oldTok->type = ExprTypes::Boolean;
       advance();
 
       return oldTok;
