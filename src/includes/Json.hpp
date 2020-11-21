@@ -1,5 +1,7 @@
 #include <map>
-#include "JsonReader.hpp"
+#include <string>
+#include <fstream>
+#include <iostream>
 #include "JsonParser.hpp"
 
 std::string numberToString(int value) {
@@ -187,8 +189,24 @@ class JSONObject {
 class JSON {
   public:
 
+  static std::string readFile(std::string filename) {
+    std::ifstream ReadFile(filename);
+    std::string text = "";
+    std::string line;
+
+    while (std::getline(ReadFile, line)) {
+      text += line + "\n";
+    }
+
+    if (text[text.length()-1] == EOF) text = text.substr(0, text.length() - 1);
+
+    ReadFile.close();
+
+    return text;
+  }
+
   static JSONObject readFromFile(std::string filepath) {
-    std::string data = readFile(filepath);
+    std::string data = JSON::readFile(filepath);
     
     return parse(data);
   }
