@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <initializer_list>
 #include "JsonParser.hpp"
 
 std::string numberToString(int value) {
@@ -29,11 +30,13 @@ class JSONObject {
 
   enum class Types {
     Object,
+    Array,
     Value
   };
 
   Types type;
   void* value;
+  bool isArray;
 
   class JSONValue {
     public:
@@ -60,6 +63,10 @@ class JSONObject {
       obj.setValue(key, newvalue);
       return obj.mapentries[key];
     }
+    JSONObject operator= (const char* newvalue) {
+      obj.setValue(key, std::string(newvalue));
+      return obj.mapentries[key];
+    }
     JSONObject operator= (bool newvalue) {
       obj.setValue(key, newvalue);
       return obj.mapentries[key];
@@ -77,6 +84,11 @@ class JSONObject {
       JSONObject* o = &obj.mapentries[key];
       return JSONValue(*o, newkey, obj.mapentries[key].mapentries[newkey].type);
     }
+    JSONValue operator[](int index) {
+      std::string newkey = numberToString(index);
+      JSONObject* o = &obj.mapentries[key];
+      return JSONValue(*o, newkey, obj.mapentries[key].mapentries[newkey].type);
+    }
 
     std::string getString() {
       return obj.mapentries[key].toString();
@@ -91,8 +103,9 @@ class JSONObject {
       return obj.mapentries[key].toBoolean();
     }
 
-    JSONObject read() {
-      return obj.mapentries[key];
+    JSONObject& read() {
+      JSONObject* o = &obj.mapentries[key];
+      return *o;
     }
   };
 
@@ -121,7 +134,7 @@ class JSONObject {
     type = Types::Value;
     initValue(token);
   }
-  JSONObject(Expression* jsonvalue) {
+  JSONObject(Expression* jsonvalue, bool isArray = false): isArray(isArray) {
     jsonexp = jsonvalue;
     token = jsonvalue->value;
 
@@ -130,6 +143,15 @@ class JSONObject {
       entries = jsonvalue->entries;
       for (Expression* entry : entries) {
         mapentries[entry->key] = JSONObject(entry->jsonvalue);
+      }
+    } else if (jsonvalue->type == ExprTypes::Array) {
+      type = Types::Array;
+      entries = jsonvalue->entries;
+      isArray = true;
+      int i = 0;
+      for (auto entry : entries) {
+        mapentries[numberToString(i)] = JSONObject(entry, true);
+        i++;
       }
     } else {
       type = Types::Value;
@@ -140,12 +162,16 @@ class JSONObject {
   JSONValue operator[](std::string key) {
     return JSONValue(*this, key, mapentries[key].type);
   }
+  JSONValue operator[](int index) {
+    std::string key = numberToString(index);
+    return JSONValue(*this, key, mapentries[key].type);
+  }
 
   std::string toString() {
-    std::cout << token.getString();
     if (token.type == "Boolean") return token.getString();
     if (token.type == "Integer") return token.getString();
     if (token.type == "Double" ) return token.getString();
+    if (token.type == "Null"   ) return token.getString();
     return *(std::string*)value;
   }
   int toInt() {
@@ -180,6 +206,8 @@ class JSONObject {
       value = new double(std::stod(tok.getString()));
     } else if (tok.type == "Boolean") {
       value = new bool(tok.getString() == "true" ? true : false);
+    } else if (tok.type == "Null") {
+      value = new std::string(tok.getString());
     }
 
     return;
@@ -222,6 +250,10 @@ class JSON {
     JSONLexer lexer = JSONLexer(data);
     std::vector<JSONToken> tokens = lexer.tokenize();
 
+    // for (auto token : tokens) {
+    //   token.debugPrint();
+    // }
+
     JSONParser parser = JSONParser(tokens);
     Expression* ast = parser.parse();
 
@@ -230,12 +262,16 @@ class JSON {
   }
 
   static std::string stringify(JSONObject obj, int spacing = 0) {
-    std::string main = "{";
+    bool isArray = obj.type == JSONObject::Types::Array;
+    std::string main = (!isArray ? "{" : "[");
 
     for(auto it = obj.mapentries.begin(); it != obj.mapentries.end(); it++) {
-      main += "\"" + it->first + "\":";
+      if (!it->second.isArray && !isArray)
+        main += "\"" + it->first + "\":";
       if (it->second.type == JSONObject::Types::Object) main += JSON::stringify(it->second, spacing);
-      else {
+      else if (it->second.type == JSONObject::Types::Array) {
+        main += JSON::stringify(it->second, spacing);
+      } else {
         if (it->second.token.type == "String")
           main += "\"" + it->second.token.getString() + "\"";
         else
@@ -246,7 +282,7 @@ class JSON {
       it--;
     }
 
-    main += "}";
+    main += (!isArray ? "}" : "]");;
 
     return main;
   }

@@ -158,7 +158,7 @@ class JSONLexer {
         advance();
       }
 
-      if (curChar == '{' || curChar == '}' || curChar == ',') {
+      if (curChar == '{' || curChar == '}' || curChar == '[' || curChar == ']' || curChar == ',') {
         JSONToken tok = JSONToken("Delimiter", curChar);
         tok.index = index;
         tok.line = line;
@@ -242,6 +242,7 @@ class JSONLexer {
         }
 
         if (value == "true" || value == "false") type = "Boolean";
+        if (value == "null" || value == "undefined") type = "Null";
 
         JSONToken tok = type == "Identifier" ? JSONToken(value, true)
           : JSONToken(type, value);

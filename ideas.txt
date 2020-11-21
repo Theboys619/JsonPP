@@ -1,0 +1,47 @@
+class Node {
+  public:
+  std::string type;
+  std::string key;
+  void* value;
+
+  Node(const char* key, bool x): key(std::string(key)) {
+    type = "Boolean";
+    value = new bool(x);
+  };
+  Node(const char* key, int x): key(std::string(key)) {
+    type = "Integer";
+    value = new int(x);
+  };
+  Node(const char* key, double x): key(std::string(key)) {
+    type = "Double";
+    value = new double(x);
+  };
+  Node(const char* key, const char* x): key(std::string(key)) {
+    type = "String";
+    value = new std::string(x);
+  };
+  Node(const char* key, Node x): key(std::string(key)) {
+    type = "Node";
+    value = new Node(x);
+  };
+
+  std::string getKey() {
+    return key;
+  }
+
+  std::string getString() {
+    return *(std::string*)value;
+  }
+  bool getBoolean() {
+    return *(bool*)value;
+  }
+  int getInt() {
+    return *(int*)value;
+  }
+  double getDouble() {
+    return *(double*)value;
+  }
+  Node getNode() {
+    return *(Node*)value;
+  }
+};

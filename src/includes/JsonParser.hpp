@@ -14,6 +14,7 @@ class SyntaxError : public std::exception {
 
 enum class ExprTypes {
   None,
+  Null,
   Integer,
   Double,
   String,
@@ -21,6 +22,7 @@ enum class ExprTypes {
   Key,
   Entry,
   Object,
+  Array
 };
 
 class Expression {
@@ -151,6 +153,15 @@ class JSONParser {
     return object;
   }
 
+  Expression* pArray() {
+    Expression* array = new Expression(ExprTypes::Array, curTok);
+    std::vector<Expression*> entries = pDelimiters("[", "]", ",");
+
+    array->entries = entries;
+
+    return array;
+  };
+
   Expression* pAll() {
     // Other Stuff Goes Here
 
@@ -158,6 +169,9 @@ class JSONParser {
 
     if (isType("Delimiter", "{", curTok))
       return pObject();
+    
+    if (isType("Delimiter", "[", curTok))
+      return pArray();
 
     if (isType("String", curTok)) {
       if (isType("Operator", ":", peek()))
@@ -192,6 +206,13 @@ class JSONParser {
       return oldTok;
     }
 
+    if (isType("Null", curTok)) {
+      oldTok->type = ExprTypes::Null;
+      advance();
+
+      return oldTok;
+    }
+
     if (isIgnore(curTok))
       return oldTok;    
   }
@@ -203,7 +224,7 @@ class JSONParser {
   Expression* parse() {
     curTok = tokens[0];
 
-    if (curTok.type != "Delimiter" && curTok.getString() != "{") {
+    if (curTok.type != "Delimiter" && curTok.getString() != "{" && curTok.getString() != "[") {
       std::cout << "SyntaxError: Invalid Token" << std::endl;
       return ast;
     }
