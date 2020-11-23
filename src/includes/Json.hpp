@@ -215,6 +215,22 @@ class JSONObject {
 };
 
 class JSON {
+  class Spacing {
+    public:
+    std::string spacing;
+    int spaces;
+
+    Spacing(int spaces = 0): spaces(spaces) {
+      std::string space = " ";
+      spacing = "";
+
+      for (int i = 0; i < spaces; i++)
+        spacing += space;
+    }
+
+    std::string getString() { return spacing; };
+  };
+
   public:
 
   static std::string readFile(std::string filename) {
@@ -239,10 +255,10 @@ class JSON {
     return parse(data);
   }
 
-  static void writeToFile(std::string filepath, JSONObject obj) {
+  static void writeToFile(std::string filepath, JSONObject obj, int spacing = 0) {
     std::ofstream File(filepath);
 
-    File << JSON::stringify(obj);
+    File << JSON::stringify(obj, spacing);
     File.close();
   }
 
@@ -261,26 +277,56 @@ class JSON {
     return obj;
   }
 
-  static std::string stringify(JSONObject obj, int spacing = 0) {
+  // static std::string stringit()
+
+  static std::string stringify(JSONObject obj, int spacing = 0, int originalSpacing = 0) {
+    if (originalSpacing == 0)
+      originalSpacing = spacing;
+
+    Spacing space = Spacing(originalSpacing != spacing ? spacing : 0);
+
     bool isArray = obj.type == JSONObject::Types::Array;
+    bool isFirst = true;
     std::string main = (!isArray ? "{" : "[");
 
+    if (obj.mapentries.begin() != obj.mapentries.end()) {
+      if (originalSpacing != spacing && spacing > 0) main += "\n";
+        main += space.getString();
+    }
+
     for(auto it = obj.mapentries.begin(); it != obj.mapentries.end(); it++) {
+      Spacing newspacing = Spacing(spacing);
+
       if (!it->second.isArray && !isArray)
-        main += "\"" + it->first + "\":";
-      if (it->second.type == JSONObject::Types::Object) main += JSON::stringify(it->second, spacing);
+        main += ((originalSpacing == spacing && spacing > 0) || spacing > 0 && !isFirst ? "\n" + newspacing.getString() : "") + "\"" + it->first + "\":";
+      // else if (it->second.type == JSONObject::Types::Object || it->second.type == JSONObject::Types::Array)
+      //   main += "\n" + newspacing.getString();
+
+      if (it->second.type == JSONObject::Types::Object)
+        main += (!isArray && spacing > 0 ? " " : "") + JSON::stringify(it->second, spacing + originalSpacing, originalSpacing);
       else if (it->second.type == JSONObject::Types::Array) {
-        main += JSON::stringify(it->second, spacing);
+        main += (isArray ? newspacing.getString() : (spacing > 0 ? " " : "")) + JSON::stringify(it->second, spacing + originalSpacing, originalSpacing);
       } else {
         if (it->second.token.type == "String")
-          main += "\"" + it->second.token.getString() + "\"";
+          main += (spacing > 0 && !isArray ? " " : "") + std::string("\"") + it->second.token.getString() + "\"";
         else
-          main += it->second.token.getString();
+          main += (spacing > 0 && !isArray ? " " : "") + it->second.token.getString();
       }
       if ((++it) != obj.mapentries.end())
-        main += ",";
+        main += "," + (spacing > 0 ? "\n" + newspacing.getString() : "");
+      // else {
+      //   main += (spacing > 0 ? "\n" + newspacing.getString() : "");
+      // }
+
       it--;
+      isFirst = false;
     }
+
+    if (obj.mapentries.begin() != obj.mapentries.end())
+      main += (spacing > 0 ? "\n" : "");
+
+    if (obj.mapentries.begin() != obj.mapentries.end())
+      if (spacing != originalSpacing) main += Spacing(spacing - originalSpacing).getString();
 
     main += (!isArray ? "}" : "]");;
 
