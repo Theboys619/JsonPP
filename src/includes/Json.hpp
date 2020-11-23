@@ -298,7 +298,7 @@ class JSON {
       Spacing newspacing = Spacing(spacing);
 
       if (!it->second.isArray && !isArray)
-        main += ((originalSpacing == spacing && spacing > 0) || spacing > 0 && !isFirst ? "\n" + newspacing.getString() : "") + "\"" + it->first + "\":";
+        main += ((originalSpacing == spacing && spacing > 0) || (spacing > 0 && !isFirst) ? "\n" + newspacing.getString() : "") + "\"" + it->first + "\":";
       // else if (it->second.type == JSONObject::Types::Object || it->second.type == JSONObject::Types::Array)
       //   main += "\n" + newspacing.getString();
 
