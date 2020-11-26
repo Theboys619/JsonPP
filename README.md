@@ -14,13 +14,15 @@ To use in your program include the `JSON.hpp` File
 #include "include/Json.hpp"
 
 int main(void) {
-  JSONObject obj = JSON::parse("JSON STRING HERE");
+  JSONObject obj = JSON::parse("{\"key\": \"value\"}");
+
+  std::cout << obj["key"].getString() << std::endl;
 
   return 0;
 }
 ```
 
-#### Methods on JSON Class
+### Methods on JSON Class
 
 There are also some more methods and things you can do with it.
 Here are some methods with the JSON class.
@@ -28,13 +30,13 @@ Here are some methods with the JSON class.
 void writeToFile(std::string filepath, std::string data, int spacing = 0); // Validates JSON String and writes it to a file
 void writeToFile(std::string filepath, JSONObject obj, int spacing = 0); // Write a JSONObject to a file
 
-JSONObject JSON::readFromFile(std::string str); // Read JSON from a filepath (ex: data.json) returns JSONObject
-JSONObject JSON::parse(std::string str); // Parses a JSON string
+JSONObject JSON::readFromFile(std::string filepath); // Read JSON from a filepath (ex: data.json) returns JSONObject
+JSONObject JSON::parse(std::string data); // Parses a JSON string
 std::string JSON::stringify(JSONObject obj, int spacing = 0); // Stringify a JSON Object
 ```
 
 
-#### Access JSONObject Data
+### Access JSONObject Data
 
 You can use subscripts on the object to access different values in the object.
 Example:
@@ -53,7 +55,7 @@ double getDouble();
 bool getBoolean();
 ```
 
-#### Object to String
+### Object to String
 
 If you want to convert a JSONObject into a string then you can use the `std::string JSON::stringify(JSONObject)` function.
 
