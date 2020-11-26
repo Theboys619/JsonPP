@@ -1,19 +1,16 @@
 #include <iostream>
 #include "include/Json.hpp"
 
-int main(int argc, char** argv) {
-  
-  // JSONObject x = JSON::readFromFile("./tests/test.json");
+int main(void) {
+  // Read JSONObject from a json file
+  JSONObject x = JSON::readFromFile("./tests/test.json");
 
-  // std::cout << x["why"][0]["are"].getString() << std::endl;
-  // std::cout << x["why"][1].getString() << std::endl; // Should be 2
-  // std::cout << x["why"][2].getString() << std::endl; // Should be 3
-  // std::cout << x["why"][3].getInt() << std::endl; // Should be 4
-  // std::cout << x["coupon_url"].getString() << std::endl;
+  // Stringify a JSONObject into a string
+  std::string str = JSON::stringify(x, 2); // 2 = Spacing of JSON String
+  std::cout << str << std::endl; // Log the Stringed JSON
 
-  std::string data = "{\"test\":\"test\"}";
-
-  JSON::writeToFile("./tests/test.json", data, 2);
+  // Stringify a JSONObject into a file
+  JSON::writeToFile("./tests/test.json", x, 2); // 2 = Spacing of JSON String
 
   return 0;
 }
