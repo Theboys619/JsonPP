@@ -255,6 +255,11 @@ class JSON {
     return parse(data);
   }
 
+  static void writeToFile(std::string filepath, const char* data, int spacing = 0) {
+    JSONObject obj = JSON::parse(std::string(data));
+
+    JSON::writeToFile(filepath, obj, spacing);
+  }
   static void writeToFile(std::string filepath, JSONObject obj, int spacing = 0) {
     std::ofstream File(filepath);
 

@@ -9,9 +9,9 @@ int main(int argc, char** argv) {
   // std::cout << x["why"][1].getString() << std::endl; // Should be 2
   // std::cout << x["why"][2].getString() << std::endl; // Should be 3
   // std::cout << x["why"][3].getInt() << std::endl; // Should be 4
-  std::cout << x["place_url"].getString() << std::endl;
+  std::cout << x["coupon_url"].getString() << std::endl;
 
-  JSON::writeToFile("./tests/test.json", x, 2);
+  JSON::writeToFile("./tests/test.json", "{ \"test\": \"lol\" }", 2);
 
   return 0;
 }
