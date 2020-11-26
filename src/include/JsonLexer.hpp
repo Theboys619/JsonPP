@@ -103,13 +103,13 @@ class JSONLexer {
     pos += amt;
     index += amt;
 
-    if (pos >= length) return curChar = '\0';
+    if (pos > length) return curChar = '\0';
 
     return curChar = input[pos];
   }
 
   char peek(int amt = 1) {
-    if (pos + amt >= length) return '\0';
+    if (pos + amt > length) return '\0';
 
     return input[pos + amt];
   }
@@ -221,7 +221,9 @@ class JSONLexer {
           if (curChar == '\n') throw std::exception();
           value += advance();
         }
-        advance();
+
+        if (isQuote(curChar))
+          advance();
 
         JSONToken tok = JSONToken(value);
         tok.index = tokindex;
@@ -252,7 +254,7 @@ class JSONLexer {
         tokens.push_back(tok);
       }
 
-      if (curChar == '\0') break;
+      // if (curChar == '\0') break;
       if (lastPos == pos) {
         std::string text = "Unknown character '";
         text += curChar;

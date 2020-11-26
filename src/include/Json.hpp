@@ -255,8 +255,8 @@ class JSON {
     return parse(data);
   }
 
-  static void writeToFile(std::string filepath, const char* data, int spacing = 0) {
-    JSONObject obj = JSON::parse(std::string(data));
+  static void writeToFile(std::string filepath, std::string data, int spacing = 0) {
+    JSONObject obj = JSON::parse(data);
 
     JSON::writeToFile(filepath, obj, spacing);
   }
@@ -273,7 +273,7 @@ class JSON {
 
     // for (auto token : tokens) {
     //   token.debugPrint();
-    // }
+    // } // crashes after looping through tokens. LOL
 
     JSONParser parser = JSONParser(tokens);
     Expression* ast = parser.parse();
@@ -282,8 +282,7 @@ class JSON {
     return obj;
   }
 
-  // static std::string stringit()
-
+  // AHHH This iS SO UGLY
   static std::string stringify(JSONObject obj, int spacing = 0, int originalSpacing = 0) {
     if (originalSpacing == 0)
       originalSpacing = spacing;
